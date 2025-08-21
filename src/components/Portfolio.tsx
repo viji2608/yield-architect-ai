@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StrategyModal } from "@/components/StrategyModal";
+import { useToast } from "@/hooks/use-toast";
 import { 
   TrendingUp, 
   DollarSign, 
@@ -55,6 +58,36 @@ const portfolioData = {
 };
 
 export const Portfolio = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedStrategy, setSelectedStrategy] = useState<typeof portfolioData.strategies[0] | null>(null);
+  const [modalMode, setModalMode] = useState<'view' | 'configure'>('view');
+  const [isApplyingRecommendations, setIsApplyingRecommendations] = useState(false);
+  const { toast } = useToast();
+
+  const handleViewStrategy = (strategy: typeof portfolioData.strategies[0]) => {
+    setSelectedStrategy(strategy);
+    setModalMode('view');
+    setModalOpen(true);
+  };
+
+  const handleConfigureStrategy = (strategy: typeof portfolioData.strategies[0]) => {
+    setSelectedStrategy(strategy);
+    setModalMode('configure');
+    setModalOpen(true);
+  };
+
+  const handleApplyRecommendations = async () => {
+    setIsApplyingRecommendations(true);
+    
+    // Simulate applying AI recommendations
+    setTimeout(() => {
+      setIsApplyingRecommendations(false);
+      toast({
+        title: "AI Recommendations Applied! 🤖✨",
+        description: "Your portfolio has been optimized for better performance",
+      });
+    }, 3000);
+  };
   const getRiskColor = (risk: string) => {
     switch (risk) {
       case "Low": return "text-success";
@@ -75,7 +108,7 @@ export const Portfolio = () => {
   };
 
   return (
-    <div className="py-20 bg-gradient-hero">
+    <div id="portfolio-dashboard" className="py-20 bg-gradient-hero">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <Badge className="mb-6 bg-gradient-accent text-accent-foreground border-0">
@@ -181,11 +214,21 @@ export const Portfolio = () => {
 
                 {/* Actions */}
                 <div className="flex gap-2 pt-4">
-                  <Button variant="glow" size="sm" className="flex-1">
+                  <Button 
+                    variant="glow" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleViewStrategy(strategy)}
+                  >
                     <Eye className="w-4 h-4 mr-2" />
                     View
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleConfigureStrategy(strategy)}
+                  >
                     <Settings className="w-4 h-4 mr-2" />
                     Configure
                   </Button>
@@ -240,14 +283,35 @@ export const Portfolio = () => {
             </div>
 
             <div className="mt-6 text-center">
-              <Button variant="ai" size="lg">
-                <Zap className="w-5 h-5 mr-2" />
-                Apply AI Recommendations
+              <Button 
+                variant="ai" 
+                size="lg"
+                onClick={handleApplyRecommendations}
+                disabled={isApplyingRecommendations}
+              >
+                {isApplyingRecommendations ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-accent-foreground mr-2"></div>
+                    Applying Recommendations...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-5 h-5 mr-2" />
+                    Apply AI Recommendations
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+      
+      <StrategyModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        strategy={selectedStrategy}
+        mode={modalMode}
+      />
     </div>
   );
 };

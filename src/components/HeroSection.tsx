@@ -1,10 +1,33 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Zap, Globe, TrendingUp, ShieldCheck, Cpu } from "lucide-react";
+import { WalletModal } from "@/components/WalletModal";
+import { useScrollTo } from "@/hooks/useScrollTo";
+import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-ai-defi.jpg";
 
 export const HeroSection = () => {
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const { scrollToElement } = useScrollTo();
+  const { toast } = useToast();
+
+  const handleLaunchApp = () => {
+    scrollToElement('strategy-builder');
+    toast({
+      title: "Welcome to AI Yield Architect! 🚀",
+      description: "Start building your DeFi strategy below",
+    });
+  };
+
+  const handleViewDemo = () => {
+    scrollToElement('portfolio-dashboard');
+    toast({
+      title: "Live Portfolio Demo 📊",
+      description: "Explore our real-time portfolio tracking",
+    });
+  };
   return (
     <div className="relative min-h-screen bg-gradient-hero overflow-hidden">
       {/* Background Image with Overlay */}
@@ -30,8 +53,20 @@ export const HeroSection = () => {
             </h1>
           </div>
           <div className="flex gap-4">
-            <Button variant="glow" size="sm">Connect Wallet</Button>
-            <Button variant="hero" size="sm">Launch App</Button>
+            <Button 
+              variant="glow" 
+              size="sm"
+              onClick={() => setWalletModalOpen(true)}
+            >
+              Connect Wallet
+            </Button>
+            <Button 
+              variant="hero" 
+              size="sm"
+              onClick={handleLaunchApp}
+            >
+              Launch App
+            </Button>
           </div>
         </nav>
 
@@ -54,11 +89,21 @@ export const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-6">
+            <Button 
+              variant="hero" 
+              size="lg" 
+              className="text-lg px-8 py-6"
+              onClick={() => scrollToElement('strategy-builder')}
+            >
               <Brain className="w-5 h-5 mr-2" />
               Start Building Strategies
             </Button>
-            <Button variant="glow" size="lg" className="text-lg px-8 py-6">
+            <Button 
+              variant="glow" 
+              size="lg" 
+              className="text-lg px-8 py-6"
+              onClick={handleViewDemo}
+            >
               <Zap className="w-5 h-5 mr-2" />
               View Live Demo
             </Button>
@@ -131,6 +176,11 @@ export const HeroSection = () => {
           </div>
         </div>
       </div>
+      
+      <WalletModal 
+        open={walletModalOpen}
+        onOpenChange={setWalletModalOpen}
+      />
     </div>
   );
 };

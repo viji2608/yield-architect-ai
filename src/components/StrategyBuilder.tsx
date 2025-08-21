@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Coins, 
   Layers, 
@@ -14,7 +15,9 @@ import {
   DollarSign,
   TrendingUp,
   Shield,
-  RotateCcw
+  RotateCcw,
+  Brain,
+  Sparkles
 } from "lucide-react";
 
 const adoModules = [
@@ -66,6 +69,63 @@ export const StrategyBuilder = () => {
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [userGoal, setUserGoal] = useState("");
   const [riskLevel, setRiskLevel] = useState("medium");
+  const [targetInvestment, setTargetInvestment] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const { toast } = useToast();
+
+  const generateAIStrategy = async () => {
+    if (!userGoal.trim()) {
+      toast({
+        title: "Please describe your goal 🎯",
+        description: "Tell us about your financial objectives to generate a strategy",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    // Simulate AI processing
+    setTimeout(() => {
+      // AI suggests modules based on goal and risk level
+      const aiSuggestions = {
+        low: ['cw20', 'staking', 'vault'],
+        medium: ['cw20', 'staking', 'splitter', 'vault'],
+        high: ['cw20', 'splitter', 'auction', 'crowdfund']
+      };
+      
+      setSelectedModules(aiSuggestions[riskLevel as keyof typeof aiSuggestions]);
+      setIsGenerating(false);
+      
+      toast({
+        title: "AI Strategy Generated! 🤖✨",
+        description: `Created a ${riskLevel}-risk strategy with ${aiSuggestions[riskLevel as keyof typeof aiSuggestions].length} ADO modules`,
+      });
+    }, 3000);
+  };
+
+  const handleDeploy = async () => {
+    if (selectedModules.length === 0) {
+      toast({
+        title: "No modules selected 📋",
+        description: "Please select ADO modules or generate an AI strategy first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsDeploying(true);
+    
+    // Simulate deployment
+    setTimeout(() => {
+      setIsDeploying(false);
+      toast({
+        title: "Strategy Deployed Successfully! 🚀",
+        description: "Your cross-chain DeFi strategy is now live and auto-rebalancing",
+      });
+    }, 4000);
+  };
 
   const toggleModule = (moduleId: string) => {
     setSelectedModules(prev => 
@@ -76,7 +136,7 @@ export const StrategyBuilder = () => {
   };
 
   return (
-    <div className="py-20 bg-background">
+    <div id="strategy-builder" className="py-20 bg-background">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <Badge className="mb-6 bg-gradient-primary text-primary-foreground border-0">
@@ -136,12 +196,29 @@ export const StrategyBuilder = () => {
                 <Input 
                   placeholder="10,000 USDC" 
                   className="bg-background/50 border-border/20"
+                  value={targetInvestment}
+                  onChange={(e) => setTargetInvestment(e.target.value)}
                 />
               </div>
 
-              <Button variant="ai" className="w-full" size="lg">
-                <Zap className="w-5 h-5 mr-2" />
-                Generate AI Strategy
+              <Button 
+                variant="ai" 
+                className="w-full" 
+                size="lg"
+                onClick={generateAIStrategy}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-accent-foreground mr-2"></div>
+                    Generating Strategy...
+                  </>
+                ) : (
+                  <>
+                    <Brain className="w-5 h-5 mr-2" />
+                    Generate AI Strategy
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -227,9 +304,23 @@ export const StrategyBuilder = () => {
                 Your strategy will be deployed across multiple chains using aOS workflows and Pulsar
               </p>
               <div className="flex gap-4 justify-center">
-                <Button variant="success" size="lg">
-                  <RotateCcw className="w-5 h-5 mr-2" />
-                  Deploy & Auto-Rebalance
+                <Button 
+                  variant="success" 
+                  size="lg"
+                  onClick={handleDeploy}
+                  disabled={isDeploying}
+                >
+                  {isDeploying ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-success-foreground mr-2"></div>
+                      Deploying Strategy...
+                    </>
+                  ) : (
+                    <>
+                      <RotateCcw className="w-5 h-5 mr-2" />
+                      Deploy & Auto-Rebalance
+                    </>
+                  )}
                 </Button>
                 <Button variant="glow" size="lg">
                   <ArrowRight className="w-5 h-5 mr-2" />
